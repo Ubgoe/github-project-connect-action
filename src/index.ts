@@ -20,8 +20,9 @@ async function findCard(
 ): Promise<number | undefined> {
   const columns = await octokit.projects.listColumns({ project_id: project });
   for (const column of columns.data) {
-    const cards = await octokit.projects.listCards({ column_id: column.id });
-    for (const card of cards.data) {
+    const options = octokit.projects.listCards.endpoint.merge({ column_id: column.id });
+    const cards = await octokit.paginate(options);
+    for (const card of cards) {
       if (card.content_url?.endsWith(`${owner}/${repo}/issues/${issue}`)) {
         return card.id;
       }
